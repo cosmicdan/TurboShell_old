@@ -19,6 +19,8 @@ public class User32Ex {
 	public native WinDef.BOOL GetWindowPlacement(WinDef.HWND hwnd, WinUser.WINDOWPLACEMENT lpwndpl);
 	public native boolean TranslateMessage(WinUser.MSG lpMsg);
 	public native WinDef.LRESULT DispatchMessageW(WinUser.MSG lpMsg);
+	/** Sets the show state of a window without waiting for the operation to complete */
+	public native boolean ShowWindowAsync(WinDef.HWND hWnd, int nCmdShow);
 
 	/* wrapped natives */
 	native int MessageBoxW(WinDef.HWND hWnd, WString text, WString lpCaption, int uType);

@@ -19,6 +19,23 @@ public class Environment {
 		return LazyHolder.INSTANCE;
 	}
 
+	// -------------------------------------------------
+
+	private volatile WinDef.HWND mHWnd;
+	private Object mHWndLock = new Object();
+
+	public void setLastActiveHwnd(WinDef.HWND hWnd) {
+		synchronized(mHWndLock) {
+			mHWnd = hWnd;
+		}
+	}
+
+	public WinDef.HWND getLastActiveHwnd() {
+		synchronized(mHWndLock) {
+			return mHWnd;
+		}
+	}
+
 	public void adjustWorkArea(int top) {
 		WinDef.RECT workArea = getWorkArea();
 		setWorkArea(workArea.left, top, workArea.right, workArea.bottom);

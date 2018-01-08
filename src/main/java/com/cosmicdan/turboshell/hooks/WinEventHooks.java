@@ -1,5 +1,6 @@
 package com.cosmicdan.turboshell.hooks;
 
+import com.cosmicdan.turboshell.Environment;
 import com.cosmicdan.turboshell.gui.TurboBar;
 import com.cosmicdan.turboshell.winapi.SetWinEventHook;
 import com.cosmicdan.turboshell.winapi.User32Ex;
@@ -94,6 +95,7 @@ public class WinEventHooks {
 					switch ((int) event.longValue()) {
 						case SetWinEventHook.EVENT_SYSTEM_FOREGROUND:
 							checkWindowMaximized(hwnd);
+							Environment.getInstance().setLastActiveHwnd(hwnd);
 							break;
 						case SetWinEventHook.EVENT_OBJECT_LOCATIONCHANGE:
 							// window position changed - check if it is maximized or restored

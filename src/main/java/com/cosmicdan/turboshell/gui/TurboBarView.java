@@ -1,23 +1,15 @@
 package com.cosmicdan.turboshell.gui;
 
 import com.cosmicdan.turboshell.gui.controls.TurboBarButton;
-import javafx.application.Platform;
-import javafx.geometry.HPos;
-import javafx.geometry.Pos;
+import javafx.event.EventHandler;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
-import javafx.scene.control.TextFormatter.Change;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @Log4j2
 public class TurboBarView {
@@ -123,6 +115,16 @@ public class TurboBarView {
 	}
 
 	private void updateControllerFromListeners() {
+		mCtrlSysButtonResize.addEventFilter(MouseEvent.MOUSE_CLICKED, event ->
+				mController.eventResizeButtonClick(event));
+
+
+		/*
+		mCtrlSysButtonResize.setOnAction(event -> {
+			event.getSource()
+		});
+		*/
+
 		/*
 		xField.textProperty().addListener((obs, oldText, newText) -> controller.updateX(newText));
 		yField.textProperty().addListener((obs, oldText, newText) -> controller.updateY(newText));
@@ -130,7 +132,7 @@ public class TurboBarView {
 	}
 
 	private void observeModelAndUpdateControls() {
-		mModel.ctrlResizeGraphicIndexProp().addListener((observable, oldIndex, newIndex) ->
+		mModel.getCtrlResizeGraphicIndex().addListener((observable, oldIndex, newIndex) ->
 				refreshResizeButton(newIndex, mCtrlSysButtonResize));
 
 		/*

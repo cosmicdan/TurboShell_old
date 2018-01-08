@@ -4,9 +4,13 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.WritableIntegerValue;
+import lombok.AccessLevel;
+import lombok.Getter;
 
 public class TurboBarModel {
-	private final IntegerProperty mCtrlResizeGraphicIndex = new SimpleIntegerProperty();
+	@Getter
+	private final IntegerProperty ctrlResizeGraphicIndex = new SimpleIntegerProperty();
 
 	/*
 	private final IntegerProperty x = new SimpleIntegerProperty();
@@ -18,16 +22,12 @@ public class TurboBarModel {
 		//sum.bind(x.add(y));
 	}
 
-	public final IntegerProperty ctrlResizeGraphicIndexProp() {
-		return mCtrlResizeGraphicIndex;
-	}
-
-	public final int getCtrlResizeGraphicIndex() {
-		return mCtrlResizeGraphicIndex.get();
-	}
-
 	public final void setCtrlResizeGraphicIndex(final int newValue) {
-		mCtrlResizeGraphicIndex.set(newValue);
+		this.ctrlResizeGraphicIndex.set(newValue);
+	}
+
+	public final boolean isCtrlResizeMaximize() {
+		return 0 != this.ctrlResizeGraphicIndex.get();
 	}
 
 	/*
