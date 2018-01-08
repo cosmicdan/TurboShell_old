@@ -1,0 +1,70 @@
+package com.cosmicdan.turboshell.gui;
+
+import com.cosmicdan.turboshell.Environment;
+import com.sun.jna.platform.win32.User32;
+import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.platform.win32.WinUser;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
+public class TurboBar extends AbstractRunnableGui {
+	public static final int TURBOBAR_HEIGHT = 23;
+	public static final String WINDOW_NAME = "TurboShell's TurboBar";
+
+	public TurboBar() {
+		super(Gui.class);
+		log.info("Setting up...");
+	}
+
+	public static class Gui extends Application {
+		@Override
+		public void start(Stage primaryStage) throws Exception {
+			log.info("TurboBar GUI starting...");
+
+
+			TurboBarModel model = new TurboBarModel();
+			TurboBarController controller = new TurboBarController(model);
+			TurboBarView view = new TurboBarView(model, controller);
+
+			int[] posAndWidth = Environment.getInstance().getWorkAreaStartAndWidth();
+			Scene scene = new Scene(view.asParent(), posAndWidth[1], TURBOBAR_HEIGHT);
+			scene.getStylesheets().add(getClass().getResource("TurboBar.css").toExternalForm());
+			primaryStage.initStyle(StageStyle.UNDECORATED);
+			primaryStage.setScene(scene);
+			primaryStage.setTitle(WINDOW_NAME);
+
+			// set new workarea
+			Environment.getInstance().adjustWorkArea(TURBOBAR_HEIGHT);
+			// move the turbobar to the top edge
+			primaryStage.setX(posAndWidth[0]);
+			primaryStage.setY(0);
+
+			primaryStage.show();
+
+			// set extended style *after* the GUI is shown (such workarounds are to be expected when dealing with java(fx) abstraction)
+			WinDef.HWND hWnd = User32.INSTANCE.FindWindow(null, WINDOW_NAME);
+			int WS_EX_TOOLWINDOW = 0x00000080; // redundant?
+			int WS_EX_TOPMOST = 0x00000008;
+			int WS_EX_NOACTIVATE = 0x08000000;
+
+			User32.INSTANCE.SetWindowLong(hWnd, WinUser.GWL_EXSTYLE, WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE);
+
+			// TODO: Prevent minimize on 'Show Desktop' action. Neither of these work...
+			//User32.INSTANCE.SetWindowLong(hWnd, WinUser.GWL_HWNDPARENT, (int) Pointer.nativeValue(User32.INSTANCE.GetDesktopWindow().getPointer()));
+			//User32.INSTANCE.SetParent(hWnd, User32.INSTANCE.GetDesktopWindow());
+
+		}
+
+		@Override
+		public void stop() throws Exception {
+			log.info("TurboBar GUI stopping...");
+			// TODO: Check if 'Restore workarea on quit' option is disabled
+			Environment.getInstance().adjustWorkArea(0);
+		}
+	}
+}

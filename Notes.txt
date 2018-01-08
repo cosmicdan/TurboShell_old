@@ -1,0 +1,8 @@
+If I ever need a more "low-level" hook, I could use SetWindowsHookEx:
+ - Probably more complicated - apparently I need to pass the message on
+ - Performance is also a concern
+Probably should only use this as an absolute last resort
+
+Alternative, for keyboard/mouse hooking:
+ - https://github.com/kristian/system-hook
+ - Unsure if I'll ever have a use for this, but nice to know it's possible
