@@ -3,8 +3,10 @@ package com.cosmicdan.turboshell.gui;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.StringProperty;
 
 public class TurboBarModel {
+	private final IntegerProperty mCtrlResizeGraphicIndex = new SimpleIntegerProperty();
 
 	/*
 	private final IntegerProperty x = new SimpleIntegerProperty();
@@ -14,34 +16,21 @@ public class TurboBarModel {
 
 	public TurboBarModel() {
 		//sum.bind(x.add(y));
+	}
 
+	public final IntegerProperty ctrlResizeGraphicIndexProp() {
+		return mCtrlResizeGraphicIndex;
+	}
+
+	public final int getCtrlResizeGraphicIndex() {
+		return mCtrlResizeGraphicIndex.get();
+	}
+
+	public final void setCtrlResizeGraphicIndex(final int newValue) {
+		mCtrlResizeGraphicIndex.set(newValue);
 	}
 
 	/*
-	public final IntegerProperty xProperty() {
-		return this.x;
-	}
-
-	public final int getX() {
-		return this.xProperty().get();
-	}
-
-	public final void setX(final int x) {
-		this.xProperty().set(x);
-	}
-
-	public final IntegerProperty yProperty() {
-		return this.y;
-	}
-
-	public final int getY() {
-		return this.yProperty().get();
-	}
-
-	public final void setY(final int y) {
-		this.yProperty().set(y);
-	}
-
 	public final javafx.beans.property.ReadOnlyIntegerProperty sumProperty() {
 		return this.sum.getReadOnlyProperty();
 	}

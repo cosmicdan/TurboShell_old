@@ -25,7 +25,8 @@ public class TurboBarButton extends Button {
 		this.setGraphic(mImageViews[0]);
 	}
 
-	public void switchImage(int index) {
+	public ImageView getImage(int index) {
 		this.setGraphic(mImageViews[index]);
+		return mImageViews[index];
 	}
 }

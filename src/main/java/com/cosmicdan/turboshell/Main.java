@@ -16,8 +16,7 @@ public class Main {
 		TurboBar turboBar = new TurboBar();
 		sTurboBarThread = new Thread(turboBar);
 		sTurboBarThread.start();
-
-		log.info("Starting WinEventHooks...");
+		
 		WinEventHooks.getInstance().start();
 	}
 }

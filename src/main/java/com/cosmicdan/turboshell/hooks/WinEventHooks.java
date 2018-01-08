@@ -33,6 +33,7 @@ public class WinEventHooks {
 	private static class WinEventHookThread extends Thread {
 		@Override
 		public void run() {
+			log.info("Starting...");
 			WinUser.WinEventProc callback = new MyWinEventProc();
 
 			SetWinEventHook hookLocationOrNameChange = new SetWinEventHook(
@@ -118,7 +119,7 @@ public class WinEventHooks {
 					}
 					*/
 
-					TurboBar.getView().updateResizeButton(SW_MAXIMIZE == (WindowPlacementStruct.showCmd & SW_MAXIMIZE));
+					TurboBar.getController().updateResizeButton(SW_MAXIMIZE == (WindowPlacementStruct.showCmd & SW_MAXIMIZE));
 				}
 			}
 

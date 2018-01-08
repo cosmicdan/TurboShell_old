@@ -16,17 +16,17 @@ public class TurboBar extends AbstractRunnableGui {
 	public static final int TURBOBAR_HEIGHT = 23;
 	public static final String WINDOW_NAME = "TurboShell's TurboBar";
 
-	private static final Object mViewLock = new Object();
-	public static TurboBarView VIEW;
+	private static final Object mControllerLock = new Object();
+	private static TurboBarController CONTROLLER;
 
 	public TurboBar() {
 		super(App.class);
 		log.info("Setting up...");
 	}
 
-	public static TurboBarView getView() {
-		synchronized (mViewLock) {
-			return VIEW;
+	public static TurboBarController getController() {
+		synchronized (mControllerLock) {
+			return CONTROLLER;
 		}
 	}
 
@@ -36,11 +36,11 @@ public class TurboBar extends AbstractRunnableGui {
 			log.info("TurboBar GUI starting...");
 
 			TurboBarModel model = new TurboBarModel();
-			TurboBarController controller = new TurboBarController(model);
-			VIEW = new TurboBarView(model, controller);
+			CONTROLLER = new TurboBarController(model);
+			TurboBarView view = new TurboBarView(model, CONTROLLER);
 
 			int[] posAndWidth = Environment.getInstance().getWorkAreaStartAndWidth();
-			Scene scene = new Scene(VIEW.asParent(), posAndWidth[1], TURBOBAR_HEIGHT);
+			Scene scene = new Scene(view.asParent(), posAndWidth[1], TURBOBAR_HEIGHT);
 			scene.getStylesheets().add(getClass().getResource("TurboBar.css").toExternalForm());
 			primaryStage.initStyle(StageStyle.UNDECORATED);
 			primaryStage.setScene(scene);

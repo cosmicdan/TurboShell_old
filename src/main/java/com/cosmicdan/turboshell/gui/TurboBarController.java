@@ -1,5 +1,7 @@
 package com.cosmicdan.turboshell.gui;
 
+import javafx.application.Platform;
+
 public class TurboBarController {
 
 	private final TurboBarModel model ;
@@ -8,23 +10,7 @@ public class TurboBarController {
 		this.model = model ;
 	}
 
-	/*
-	public void updateX(String x) {
-		model.setX(convertStringToInt(x));
+	public void updateResizeButton(boolean isMaximized) {
+		Platform.runLater(() -> model.setCtrlResizeGraphicIndex(isMaximized ? 0 : 1));
 	}
-
-	public void updateY(String y) {
-		model.setY(convertStringToInt(y));
-	}
-
-	private int convertStringToInt(String s) {
-		if (s == null || s.isEmpty()) {
-			return 0 ;
-		}
-		if ("-".equals(s)) {
-			return 0 ;
-		}
-		return Integer.parseInt(s);
-	}
-	*/
 }

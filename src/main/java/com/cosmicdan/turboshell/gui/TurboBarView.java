@@ -67,9 +67,11 @@ public class TurboBarView {
 		return mView ;
 	}
 
+	/*
 	public void updateResizeButton(boolean isMaximized) {
 		Platform.runLater(() -> mCtrlSysButtonResize.switchImage(isMaximized ? 0 : 1));
 	}
+	*/
 
 	private void setupPaneAndControls() {
 		mView = new HBox();
@@ -128,6 +130,9 @@ public class TurboBarView {
 	}
 
 	private void observeModelAndUpdateControls() {
+		mModel.ctrlResizeGraphicIndexProp().addListener((observable, oldIndex, newIndex) ->
+				refreshResizeButton(newIndex, mCtrlSysButtonResize));
+
 		/*
 		model.xProperty().addListener((obs, oldX, newX) ->
 				updateIfNeeded(newX, xField));
@@ -139,7 +144,11 @@ public class TurboBarView {
 		*/
 	}
 
-	/*
+	private void refreshResizeButton(Number newIndex, TurboBarButton mCtrlSysButtonResize) {
+		mCtrlSysButtonResize.setGraphic(mCtrlSysButtonResize.getImage(newIndex.intValue()));
+	}
+
+
 	private void updateIfNeeded(Number value, TextField field) {
 		String s = value.toString() ;
 		if (! field.getText().equals(s)) {
@@ -147,7 +156,7 @@ public class TurboBarView {
 		}
 	}
 
-
+/*
 
 	private void configTextFieldForInts(TextField field) {
 		field.setTextFormatter(new TextFormatter<Integer>((Change c) -> {
