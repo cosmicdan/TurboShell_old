@@ -1,5 +1,6 @@
 package com.cosmicdan.turboshell.hooks;
 
+import com.cosmicdan.turboshell.gui.TurboBar;
 import com.cosmicdan.turboshell.winapi.SetWinEventHook;
 import com.cosmicdan.turboshell.winapi.User32Ex;
 import com.sun.jna.platform.win32.User32;
@@ -58,8 +59,8 @@ public class WinEventHooks {
 					break;
 				} else {
 					//System.err.println("got message");
-					User32.INSTANCE.TranslateMessage(msg);
-					User32.INSTANCE.DispatchMessage(msg);
+					User32Ex.INSTANCE.TranslateMessage(msg);
+					User32Ex.INSTANCE.DispatchMessageW(msg);
 				}
 			}
 			// no need to optimize this with a direct mapping
@@ -77,7 +78,7 @@ public class WinEventHooks {
 			static final int SW_MAXIMIZE = 3;
 
 
-			public final WinUser.WINDOWPLACEMENT WindowPlacementStruct = new WinUser.WINDOWPLACEMENT();
+			private final WinUser.WINDOWPLACEMENT WindowPlacementStruct = new WinUser.WINDOWPLACEMENT();
 
 			@Override
 			public void callback(WinNT.HANDLE hWinEventHook,
@@ -87,11 +88,10 @@ public class WinEventHooks {
 								 WinDef.LONG idChild,
 								 WinDef.DWORD dwEventThread,
 								 WinDef.DWORD dwmsEventTime) {
-				if (OBJID_WINDOW == idObject.longValue() && isWindowInteresting(hwnd)) {
+				if ((OBJID_WINDOW == idObject.longValue()) && isWindowInteresting(hwnd)) {
 					//noinspection NumericCastThatLosesPrecision,SwitchStatement
 					switch ((int) event.longValue()) {
 						case SetWinEventHook.EVENT_SYSTEM_FOREGROUND:
-							log.info("New foreground window...");
 							checkWindowMaximized(hwnd);
 							break;
 						case SetWinEventHook.EVENT_OBJECT_LOCATIONCHANGE:
@@ -109,19 +109,22 @@ public class WinEventHooks {
 			}
 
 			private void checkWindowMaximized(WinDef.HWND hwnd) {
-				if (User32.INSTANCE.GetWindowPlacement(hwnd, WindowPlacementStruct).booleanValue()) {
+				if (User32Ex.INSTANCE.GetWindowPlacement(hwnd, WindowPlacementStruct).booleanValue()) {
+					boolean isMaximized = false;
+					/*
 					if (SW_MAXIMIZE == (WindowPlacementStruct.showCmd & SW_MAXIMIZE)) {
-						log.info("Maximized!");
 					} else if (SW_SHOWNORMAL == (WindowPlacementStruct.showCmd & SW_SHOWNORMAL)) {
-						log.info("Restored!");
+
 					}
+					*/
+
+					TurboBar.getView().updateResizeButton(SW_MAXIMIZE == (WindowPlacementStruct.showCmd & SW_MAXIMIZE));
 				}
 			}
 
 			private boolean isWindowInteresting(WinDef.HWND hwnd) {
 				boolean isInteresting = false;
-				// TODO: native these things
-				int styleFlags = User32.INSTANCE.GetWindowLong(hwnd, WinUser.GWL_STYLE);
+				int styleFlags = User32Ex.INSTANCE.GetWindowLongW(hwnd, WinUser.GWL_STYLE);
 				if (WinUser.WS_VISIBLE == (styleFlags & WinUser.WS_VISIBLE)) {
 					// window is visible...
 					if (WinUser.WS_CAPTION == (styleFlags & WinUser.WS_CAPTION)) {

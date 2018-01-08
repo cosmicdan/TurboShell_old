@@ -1,6 +1,7 @@
 package com.cosmicdan.turboshell.gui;
 
 import com.cosmicdan.turboshell.gui.controls.TurboBarButton;
+import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -23,6 +24,8 @@ public class TurboBarView {
 	private HBox mView;
 	private final Collection<Region> turboBarControls = new ArrayList<>(20);
 
+	private final Object mLock = new Object();
+
 	/*
 	// main turbomenu button
 	private TurboBarButton mCtrlTurboMenuButton;
@@ -43,8 +46,13 @@ public class TurboBarView {
 	private Label sumLabel;
 	*/
 
-	private final TurboBarController mController ;
-	private final TurboBarModel mModel ;
+	private final TurboBarController mController;
+	private final TurboBarModel mModel;
+
+	private final TurboBarButton mCtrlTurboMenuButton = new TurboBarButton("", "TurboBar_turbomenu_button.png");
+	private final TurboBarButton mCtrlSysButtonMinimize = new TurboBarButton("", "TurboBar_sysbtn_minimize.png");
+	private final TurboBarButton mCtrlSysButtonResize = new TurboBarButton("", new String[] {"TurboBar_sysbtn_resize_restore.png", "TurboBar_sysbtn_resize_maximize.png"});
+	private final TurboBarButton mCtrlSysButtonClose = new TurboBarButton("", "TurboBar_sysbtn_close.png");
 
 	public TurboBarView(TurboBarModel model, TurboBarController controller) {
 		mController = controller ;
@@ -55,8 +63,12 @@ public class TurboBarView {
 		observeModelAndUpdateControls();
 	}
 
-	public Parent asParent() {
+	Parent asParent() {
 		return mView ;
+	}
+
+	public void updateResizeButton(boolean isMaximized) {
+		Platform.runLater(() -> mCtrlSysButtonResize.switchImage(isMaximized ? 0 : 1));
 	}
 
 	private void setupPaneAndControls() {
@@ -64,7 +76,6 @@ public class TurboBarView {
 		mView.setId("turbobar");
 
 		// main turbomenu button
-		final TurboBarButton mCtrlTurboMenuButton = new TurboBarButton("", "TurboBar_turbomenu_button.png");
 		turboBarControls.add(mCtrlTurboMenuButton);
 
 		// middle spacing
@@ -72,16 +83,9 @@ public class TurboBarView {
 		HBox.setHgrow(centerPadding, Priority.ALWAYS);
 		turboBarControls.add(centerPadding);
 
-		// sysmenu button - minimize
-		final TurboBarButton mCtrlSysButtonMinimize = new TurboBarButton("", "TurboBar_sysbtn_minimize.png");
+		// sysmenu buttons
 		turboBarControls.add(mCtrlSysButtonMinimize);
-
-		// sysmenu button - restore/maximize
-		final TurboBarButton mCtrlSysButtonResize = new TurboBarButton("", new String[] {"TurboBar_sysbtn_resize_restore.png", "TurboBar_sysbtn_resize_maximize.png"});
 		turboBarControls.add(mCtrlSysButtonResize);
-
-		// sysmenu button - close
-		final TurboBarButton mCtrlSysButtonClose = new TurboBarButton("", "TurboBar_sysbtn_close.png");
 		mCtrlSysButtonClose.setId("close");
 		turboBarControls.add(mCtrlSysButtonClose);
 

@@ -13,8 +13,12 @@ import lombok.extern.log4j.Log4j2;
 public class User32Ex {
 	public static final User32Ex INSTANCE;
 
-	/* simple natives */
+	/* simple natives without wrappers */
 	public native int GetMessageW(WinUser.MSG lpMsg, WinDef.HWND hWnd, int wMsgFilterMin, int wMsgFilterMax);
+	public native int GetWindowLongW(WinDef.HWND hWnd, int nIndex);
+	public native WinDef.BOOL GetWindowPlacement(WinDef.HWND hwnd, WinUser.WINDOWPLACEMENT lpwndpl);
+	public native boolean TranslateMessage(WinUser.MSG lpMsg);
+	public native WinDef.LRESULT DispatchMessageW(WinUser.MSG lpMsg);
 
 	/* wrapped natives */
 	native int MessageBoxW(WinDef.HWND hWnd, WString text, WString lpCaption, int uType);
