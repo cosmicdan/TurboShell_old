@@ -7,5 +7,6 @@
 !/turboshell.ico
 !/?*.gradle
 !/?*.txt
+!/?*.md
 !/?*.cmd
 !/?*.bat
