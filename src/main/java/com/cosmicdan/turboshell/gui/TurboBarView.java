@@ -198,7 +198,10 @@ public class TurboBarView {
 		class Wrapper<T> { T content ; }
 		Wrapper<MouseEvent> eventWrapper = new Wrapper<>();
 
-		KillCountdownProgress holdTimer = new KillCountdownProgress(holdTime, mCtrlSysButtonClose);
+		boolean isPrimaryClick = MouseButton.PRIMARY == mouseButton;
+		String colorHex = isPrimaryClick ? "a03048" : "e81123"; // TODO: offload to theme
+
+		KillCountdownProgress holdTimer = new KillCountdownProgress(holdTime, mCtrlSysButtonClose, colorHex, isPrimaryClick);
 		holdTimer.setOnFinished(event -> handler.handle(eventWrapper.content));
 
 		node.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {

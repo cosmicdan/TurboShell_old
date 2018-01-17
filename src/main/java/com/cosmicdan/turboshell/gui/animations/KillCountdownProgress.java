@@ -13,6 +13,8 @@ public class KillCountdownProgress extends Transition {
 	private static final Duration DEFAULT_DURATION = Duration.millis(400);
 
 	private final TurboBarButton mCtrlCloseButton;
+	private final String mColorHex;
+	private final boolean mDoReverse;
 
 	public final void setDuration(Duration value) {
 		if ((duration != null) || (!DEFAULT_DURATION.equals(value))) {
@@ -55,10 +57,12 @@ public class KillCountdownProgress extends Transition {
 		return duration;
 	}
 
-	public KillCountdownProgress(Duration duration, TurboBarButton ctrlCloseButton) {
+	public KillCountdownProgress(Duration duration, TurboBarButton ctrlCloseButton, String colorHex, boolean reverseAnimation) {
 		setDuration(duration);
 		setCycleDuration(duration);
 		mCtrlCloseButton = ctrlCloseButton;
+		mColorHex = colorHex;
+		mDoReverse = reverseAnimation;
 	}
 
 	@Override
@@ -70,7 +74,12 @@ public class KillCountdownProgress extends Transition {
 	@Override
 	public void interpolate(double frac) {
 		int progressPercent = (int) (frac * 100);
+		if (mDoReverse)
+			progressPercent = 100 - progressPercent;
 		mCtrlCloseButton.setStyle("-fx-background-color: linear-gradient(" +
-				"from 0% 0% to " + mCtrlCloseButton.getWidth() + "px 0px, #e81123 0%, #e81123 " + progressPercent + "%, transparent " + progressPercent + "%, transparent 100%);");
+				"from 0% 0% to " + mCtrlCloseButton.getWidth() + "px 0px, " +
+				"#" + mColorHex + " 0%, #" + mColorHex + " " + progressPercent + "%, " +
+				"transparent " + progressPercent + "%, transparent 100%);"
+		);
 	}
 }
