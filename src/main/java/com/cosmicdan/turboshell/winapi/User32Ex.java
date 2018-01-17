@@ -30,7 +30,6 @@ public class User32Ex {
 	/** Places (posts) a message in the message queue without waiting for the thread to process the message */
 	// CRASHES. Disabled for now.
 	//public native void PostMessageW(WinDef.HWND hWnd, int msg, WinDef.WPARAM wParam, WinDef.LPARAM lParam);
-
 	public native WinDef.HMENU GetSystemMenu(WinDef.HWND hWnd, boolean bRevert);
 	public native int GetMenuState(WinDef.HMENU hMenu, int uId, int uFlags);
 	public native boolean GetMenuItemInfoW(WinDef.HMENU hMenu, int uItem, boolean fByPosition, WinUser.MENUITEMINFO lpmii);
@@ -41,14 +40,9 @@ public class User32Ex {
 	native WinNT.HANDLE SetWinEventHook(int eventMin, int eventMax, WinDef.HMODULE hmodWinEventProc, WinUser.WinEventProc winEventProc, int processID, int threadID, int flags);
 	native int GetWindowLongW(WinDef.HWND hWnd, int nIndex);
 
-
-
-
 	static {
 		INSTANCE = new User32Ex();
 		Native.register("user32");
-		//INSTANCE.PostMessageA(User32.INSTANCE.GetDesktopWindow(), WinUser.WM_CLOSE, null, null);
-		User32.INSTANCE.PostMessage(User32.INSTANCE.GetDesktopWindow(), WinUser.WM_CLOSE, null, null);
 	}
 
 
