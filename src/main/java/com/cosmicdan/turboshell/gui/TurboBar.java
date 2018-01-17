@@ -64,11 +64,6 @@ public class TurboBar extends AbstractRunnableGui {
 			User32.INSTANCE.SetWindowLong(hWnd, WinUser.GWL_EXSTYLE, WS_EX_NOACTIVATE);
 			// WS_EX_TOPMOST doesn't work for already-existing windows; so use SetWindowPos instead...
 			User32.INSTANCE.SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, WinUser.SWP_NOMOVE | WinUser.SWP_NOSIZE);
-
-			// TODO: Prevent minimize on 'Show Desktop' action. Neither of these work...
-			//User32.INSTANCE.SetWindowLong(hWnd, WinUser.GWL_HWNDPARENT, (int) Pointer.nativeValue(User32.INSTANCE.GetDesktopWindow().getPointer()));
-			//User32.INSTANCE.SetParent(hWnd, User32.INSTANCE.GetDesktopWindow());
-
 		}
 
 		@Override
