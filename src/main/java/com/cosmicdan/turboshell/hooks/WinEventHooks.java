@@ -2,7 +2,7 @@ package com.cosmicdan.turboshell.hooks;
 
 import com.cosmicdan.turboshell.Environment;
 import com.cosmicdan.turboshell.gui.TurboBar;
-import com.cosmicdan.turboshell.winapi.GetWindowLongStyle;
+import com.cosmicdan.turboshell.winapi.WindowProps;
 import com.cosmicdan.turboshell.winapi.SetWinEventHook;
 import com.cosmicdan.turboshell.winapi.User32Ex;
 import com.cosmicdan.turboshell.winapi.WinUser;
@@ -115,9 +115,10 @@ public class WinEventHooks {
 
 			private final WinUser.WINDOWPLACEMENT WindowPlacementStruct = new WinUser.WINDOWPLACEMENT();
 
-			private GetWindowLongStyle windowStyleData;
-			private boolean hasTitleBar = false;
+			private WindowProps windowStyleData;
 			private boolean canMaximizeOrRestore = false;
+			//private WinDef.RECT rectActive = new WinDef.RECT();
+			//private WinDef.RECT rectDesktop = new WinDef.RECT();
 
 			@Override
 			public void callback(WinNT.HANDLE hWinEventHook,
@@ -128,46 +129,48 @@ public class WinEventHooks {
 								 WinDef.DWORD dwEventThread,
 								 WinDef.DWORD dwmsEventTime) {
 				if (OBJID_WINDOW == idObject.longValue()) {
-					windowStyleData = new GetWindowLongStyle(hWnd);
-					hasTitleBar = windowStyleData.hasTitleBar();
-					if (hasTitleBar) {
+					windowStyleData = new WindowProps(hWnd);
+					if (windowStyleData.isReal()) {
 						//noinspection NumericCastThatLosesPrecision,SwitchStatement
 						switch ((int) event.longValue()) {
 							case SetWinEventHook.EVENT_SYSTEM_FOREGROUND:
 								// new window brought to the front
-								resetWindowResizeButton(hWnd);
-								Environment.getInstance().setLastActiveHwnd(hWnd);
-								refreshSysbtnEnabledState(hWnd, windowStyleData);
-								// TODO: update title label
+								Environment.getInstance().addActiveHwnd(hWnd);
+								refreshWindowResizeButton();
+								refreshTitle();
+								refreshSysbtnEnabledState();
 								break;
 							case SetWinEventHook.EVENT_OBJECT_LOCATIONCHANGE:
 								// window position changed
-								resetWindowResizeButton(hWnd);
+								refreshWindowResizeButton();
 								break;
 							case SetWinEventHook.EVENT_OBJECT_NAMECHANGE:
 								// window name changed
-								// TODO: update title label
+								refreshTitle();
 								break;
 							default:
 								log.warn("WinEventProc callback somehow got an unknown event: " + Long.toHexString(event.longValue()));
 								break;
 						}
 					}
+					Environment.getInstance().doFullscreenCheck();
 				}
 			}
 
-			void resetWindowResizeButton(WinDef.HWND hWnd) {
-				if (User32Ex.INSTANCE.GetWindowPlacement(hWnd, WindowPlacementStruct).booleanValue()) { // returns false if it fails
-					TurboBar.getController().updateResizeButton(SW_MAXIMIZE == (WindowPlacementStruct.showCmd & SW_MAXIMIZE));
+			void refreshWindowResizeButton() {
+				if (windowStyleData.isReal()) {
+					if (User32Ex.INSTANCE.GetWindowPlacement(windowStyleData.hWnd, WindowPlacementStruct).booleanValue()) { // returns false if it fails
+						TurboBar.getController().updateResizeButton(SW_MAXIMIZE == (WindowPlacementStruct.showCmd & SW_MAXIMIZE));
+					}
 				}
 			}
 
-			void refreshSysbtnEnabledState(WinDef.HWND hWnd, GetWindowLongStyle windowStyleData) {
+			void refreshSysbtnEnabledState() {
 				// always keep close button enabled
 				TurboBar.getController().setSysButtonEnabled(0, true);
 				// determine if the window can be maximized or restored
 				canMaximizeOrRestore = false;
-				if (windowStyleData.canResize() && windowStyleData.hasResizeButton()) {
+				if (windowStyleData.isReal() && windowStyleData.canResize() && windowStyleData.hasResizeButton()) {
 					//log.info("Resizable window has maximize sysbutton");
 					canMaximizeOrRestore = true;
 				} else {
@@ -189,8 +192,20 @@ public class WinEventHooks {
 				}
 				TurboBar.getController().setSysButtonEnabled(1, canMaximizeOrRestore);
 
-				// determine if the window can be minimized
-				TurboBar.getController().setSysButtonEnabled(2, windowStyleData.hasMinimizeButton());
+				// determine if the window can be minimized.
+				// AFAIK, any window that appears on the taskbar can be minimized
+				TurboBar.getController().setSysButtonEnabled(2, windowStyleData.isReal());
+			}
+
+			void refreshTitle() {
+				final int titleLength = User32Ex.INSTANCE.GetWindowTextLengthW(windowStyleData.hWnd) + 1;
+				final char[] title = new char[titleLength];
+				final int length = User32Ex.INSTANCE.GetWindowTextW(windowStyleData.hWnd, title, title.length);
+				String windowTitle = "[No title/process]";
+				if (length > 0)
+					windowTitle = new String(title);
+				// TODO: else set process name to title
+				log.info("New title: " + windowTitle);
 			}
 		}
 	}

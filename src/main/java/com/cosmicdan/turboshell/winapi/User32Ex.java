@@ -33,6 +33,13 @@ public class User32Ex {
 	public native WinDef.HMENU GetSystemMenu(WinDef.HWND hWnd, boolean bRevert);
 	public native int GetMenuState(WinDef.HMENU hMenu, int uId, int uFlags);
 	public native boolean GetMenuItemInfoW(WinDef.HMENU hMenu, int uItem, boolean fByPosition, WinUser.MENUITEMINFO lpmii);
+	public native boolean GetWindowRect(WinDef.HWND hWnd, WinDef.RECT rect);
+	public native WinDef.HWND GetDesktopWindow();
+	public native int GetWindowTextLengthW(WinDef.HWND hWnd);
+	public native int GetWindowTextW(WinDef.HWND hWnd, char[] lpString, int nMaxCount);
+	public native boolean IsWindow(WinDef.HWND hWnd);
+	public native WinDef.HWND GetAncestor(WinDef.HWND hwnd, int gaFlags);
+	public native WinDef.HWND GetWindow(WinDef.HWND hWnd, int uCmd);
 
 	/* wrapped natives */
 	native int MessageBoxW(WinDef.HWND hWnd, WString text, WString lpCaption, int uType);

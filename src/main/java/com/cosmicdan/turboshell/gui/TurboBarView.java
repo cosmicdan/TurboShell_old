@@ -2,13 +2,9 @@ package com.cosmicdan.turboshell.gui;
 
 import com.cosmicdan.turboshell.gui.animations.KillCountdownProgress;
 import com.cosmicdan.turboshell.gui.controls.TurboBarButton;
-import javafx.animation.PauseTransition;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.scene.Parent;
-import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.util.Duration;
@@ -21,8 +17,6 @@ import java.util.Collection;
 public class TurboBarView {
 	private HBox mView;
 	private final Collection<Region> turboBarControls = new ArrayList<>(20);
-
-	private final Object mLock = new Object();
 
 	/*
 	// main turbomenu button

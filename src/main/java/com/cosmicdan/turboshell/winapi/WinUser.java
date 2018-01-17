@@ -8,8 +8,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public interface WinUser extends com.sun.jna.platform.win32.WinUser {
-	int SC_RESTORE = 0xF120;
-
+	int WS_EX_APPWINDOW = 0x00040000;
+	int WS_EX_NOACTIVATE = 0x08000000;
+	int WS_EX_TOOLWINDOW = 0x00000080;
 
 	class MENUITEMINFO extends Structure {
 		/** fMask values **/

@@ -15,9 +15,14 @@ import lombok.extern.log4j.Log4j2;
 public class TurboBar extends AbstractRunnableGui {
 	public static final int TURBOBAR_HEIGHT = 23;
 	public static final String WINDOW_NAME = "TurboShell's TurboBar";
+	private static final WinDef.HWND HWND_TOPMOST = new WinDef.HWND(Pointer.createConstant(-1));
+	private static final int uFlagsVisible = WinUser.SWP_NOMOVE | WinUser.SWP_NOSIZE | WinUser.SWP_NOACTIVATE | WinUser.SWP_SHOWWINDOW;
+	private static final int uFlagsHidden = WinUser.SWP_NOMOVE | WinUser.SWP_NOSIZE | WinUser.SWP_NOACTIVATE | WinUser.SWP_HIDEWINDOW ;
 
 	private static final Object mControllerLock = new Object();
 	private static TurboBarController CONTROLLER;
+	private static WinDef.HWND hWnd;
+	private static boolean isVisible = false;
 
 	public TurboBar() {
 		super(App.class);
@@ -28,6 +33,13 @@ public class TurboBar extends AbstractRunnableGui {
 		synchronized (mControllerLock) {
 			return CONTROLLER;
 		}
+	}
+
+	public static void setVisible(boolean visible) {
+		if (visible == isVisible)
+			return; // no change, don't do anything
+		User32.INSTANCE.SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, visible ? uFlagsVisible : uFlagsHidden);
+		isVisible = visible;
 	}
 
 	public static class App extends Application {
@@ -55,15 +67,14 @@ public class TurboBar extends AbstractRunnableGui {
 			primaryStage.show();
 
 			// set extended style *after* the GUI is shown (such workarounds are to be expected when dealing with java(fx) abstraction)
-			WinDef.HWND hWnd = User32.INSTANCE.FindWindow(null, WINDOW_NAME);
+			hWnd = User32.INSTANCE.FindWindow(null, WINDOW_NAME);
 			//int WS_EX_TOOLWINDOW = 0x00000080; // redundant?
 			int WS_EX_NOACTIVATE = 0x08000000;
 
-			WinDef.HWND HWND_TOPMOST = new WinDef.HWND(Pointer.createConstant(-1));
+
 
 			User32.INSTANCE.SetWindowLong(hWnd, WinUser.GWL_EXSTYLE, WS_EX_NOACTIVATE);
-			// WS_EX_TOPMOST doesn't work for already-existing windows; so use SetWindowPos instead...
-			User32.INSTANCE.SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, WinUser.SWP_NOMOVE | WinUser.SWP_NOSIZE);
+			setVisible(true);
 		}
 
 		@Override
