@@ -17,7 +17,6 @@ public class Environment {
 	private final Object mHWndDesktopLock = new Object();
 
 	private SizedStack<WinDef.HWND> mHWndActiveStack = new SizedStack<>(8); //TODO: Offload stack size to config
-	private WinDef.HWND mHWndDesktop;
 
 	/********** "Initialization-on-demand holder" singleton pattern **********/
 	public static Environment getInstance() { return LazyHolder.INSTANCE; }
@@ -46,18 +45,6 @@ public class Environment {
 			}
 			//log.info(mHWndActiveStack);
 			return lastActive;
-		}
-	}
-
-	public void setDesktopHwnd(WinDef.HWND hWnd) {
-		synchronized(mHWndDesktopLock) {
-			mHWndDesktop = hWnd;
-		}
-	}
-
-	public WinDef.HWND getDesktopHwnd() {
-		synchronized(mHWndDesktopLock) {
-			return mHWndDesktop;
 		}
 	}
 
@@ -91,47 +78,6 @@ public class Environment {
 			}
 		}
 		TurboBar.setVisible(setVisible);
-
-
-		//log.info(screenWidth + "x" + screenHeight);
-
-		// update the Desktop handle and rectangle (just in case)
-		/*
-		WinDef.HWND desktopHandle = User32Ex.INSTANCE.GetDesktopWindow();
-		setDesktopHwnd(desktopHandle);
-
-		log.info(desktopHandle.toString());
-		if (User32Ex.INSTANCE.GetWindowRect(desktopHandle, rectDesktop)) {
-			log.info("2");
-			if (User32Ex.INSTANCE.GetWindowRect(getLastActiveHwnd(), rectActive)) {
-				log.info("3");
-				if (rectActive.left >= rectDesktop.left &&
-						rectActive.top >= rectDesktop.top &&
-						rectActive.right >= rectDesktop.right &&
-						rectActive.bottom >= rectDesktop.bottom) {
-					// set hidden
-					log.info("Hide TurboBar!");
-				} else {
-					log.info("Show TurboBar!");
-				}
-			}
-		}
-		*/
-
-
-			/*
-			// check if active window is fullscreen and (un)hide the turbobar
-			if (User32Ex.INSTANCE.GetWindowRect(Environment.getInstance().addActiveHwnd(), rectActive)) {
-				if (User32Ex.INSTANCE.GetWindowRect(User32Ex.INSTANCE.GetDesktopWindow(), rectDesktop)) {
-					if (rectActive.left == rectDesktop.left &&
-							rectActive.top == rectDesktop.top &&
-							rectActive.right == rectDesktop.right &&
-							rectActive.bottom == rectDesktop.bottom) {
-						// set hidden
-					}
-				}
-			}
-			*/
 	}
 
 	/********** Internal helpers **********/

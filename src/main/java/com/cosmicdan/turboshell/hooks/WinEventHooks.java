@@ -113,13 +113,6 @@ public class WinEventHooks {
 			//static final int SW_SHOWNORMAL = 1;
 			static final int SW_MAXIMIZE = 3;
 
-			private final WinUser.WINDOWPLACEMENT WindowPlacementStruct = new WinUser.WINDOWPLACEMENT();
-
-			private WindowProps windowStyleData;
-			private boolean canMaximizeOrRestore = false;
-			//private WinDef.RECT rectActive = new WinDef.RECT();
-			//private WinDef.RECT rectDesktop = new WinDef.RECT();
-
 			@Override
 			public void callback(WinNT.HANDLE hWinEventHook,
 								 WinDef.DWORD event,
@@ -129,24 +122,25 @@ public class WinEventHooks {
 								 WinDef.DWORD dwEventThread,
 								 WinDef.DWORD dwmsEventTime) {
 				if (OBJID_WINDOW == idObject.longValue()) {
-					windowStyleData = new WindowProps(hWnd);
-					if (windowStyleData.isReal()) {
+					WindowProps windowStyleData = new WindowProps(hWnd);
+					boolean windowIsReal = windowStyleData.isReal();
+					if (windowIsReal) {
 						//noinspection NumericCastThatLosesPrecision,SwitchStatement
 						switch ((int) event.longValue()) {
 							case SetWinEventHook.EVENT_SYSTEM_FOREGROUND:
 								// new window brought to the front
 								Environment.getInstance().addActiveHwnd(hWnd);
-								refreshWindowResizeButton();
-								refreshTitle();
-								refreshSysbtnEnabledState();
+								refreshWindowResizeButton(hWnd);
+								refreshTitle(hWnd);
+								refreshSysbtnEnabledState(hWnd, windowStyleData);
 								break;
 							case SetWinEventHook.EVENT_OBJECT_LOCATIONCHANGE:
 								// window position changed
-								refreshWindowResizeButton();
+								refreshWindowResizeButton(hWnd);
 								break;
 							case SetWinEventHook.EVENT_OBJECT_NAMECHANGE:
 								// window name changed
-								refreshTitle();
+								refreshTitle(hWnd);
 								break;
 							default:
 								log.warn("WinEventProc callback somehow got an unknown event: " + Long.toHexString(event.longValue()));
@@ -157,20 +151,19 @@ public class WinEventHooks {
 				}
 			}
 
-			void refreshWindowResizeButton() {
-				if (windowStyleData.isReal()) {
-					if (User32Ex.INSTANCE.GetWindowPlacement(windowStyleData.hWnd, WindowPlacementStruct).booleanValue()) { // returns false if it fails
-						TurboBar.getController().updateResizeButton(SW_MAXIMIZE == (WindowPlacementStruct.showCmd & SW_MAXIMIZE));
-					}
+			void refreshWindowResizeButton(WinDef.HWND hWnd) {
+				final WinUser.WINDOWPLACEMENT WindowPlacementStruct = new WinUser.WINDOWPLACEMENT();
+				if (User32Ex.INSTANCE.GetWindowPlacement(hWnd, WindowPlacementStruct).booleanValue()) { // returns false if it fails
+					TurboBar.getController().updateResizeButton(SW_MAXIMIZE == (WindowPlacementStruct.showCmd & SW_MAXIMIZE));
 				}
 			}
 
-			void refreshSysbtnEnabledState() {
+			void refreshSysbtnEnabledState(WinDef.HWND hWnd, WindowProps windowStyleData) {
 				// always keep close button enabled
 				TurboBar.getController().setSysButtonEnabled(0, true);
 				// determine if the window can be maximized or restored
-				canMaximizeOrRestore = false;
-				if (windowStyleData.isReal() && windowStyleData.canResize() && windowStyleData.hasResizeButton()) {
+				boolean canMaximizeOrRestore = false;
+				if (windowStyleData.canResize() && windowStyleData.hasResizeButton()) {
 					//log.info("Resizable window has maximize sysbutton");
 					canMaximizeOrRestore = true;
 				} else {
@@ -194,13 +187,13 @@ public class WinEventHooks {
 
 				// determine if the window can be minimized.
 				// AFAIK, any window that appears on the taskbar can be minimized
-				TurboBar.getController().setSysButtonEnabled(2, windowStyleData.isReal());
+				TurboBar.getController().setSysButtonEnabled(2, true);
 			}
 
-			void refreshTitle() {
-				final int titleLength = User32Ex.INSTANCE.GetWindowTextLengthW(windowStyleData.hWnd) + 1;
+			void refreshTitle(WinDef.HWND hWnd) {
+				final int titleLength = User32Ex.INSTANCE.GetWindowTextLengthW(hWnd) + 1;
 				final char[] title = new char[titleLength];
-				final int length = User32Ex.INSTANCE.GetWindowTextW(windowStyleData.hWnd, title, title.length);
+				final int length = User32Ex.INSTANCE.GetWindowTextW(hWnd, title, title.length);
 				String windowTitle = "[No title/process]";
 				if (length > 0)
 					windowTitle = new String(title);
