@@ -2,12 +2,13 @@ package com.cosmicdan.turboshell.hooks;
 
 import com.cosmicdan.turboshell.Environment;
 import com.cosmicdan.turboshell.gui.TurboBar;
+import com.cosmicdan.turboshell.winapi.GetWindowLongStyle;
 import com.cosmicdan.turboshell.winapi.SetWinEventHook;
 import com.cosmicdan.turboshell.winapi.User32Ex;
+import com.cosmicdan.turboshell.winapi.WinUser;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinNT;
-import com.sun.jna.platform.win32.WinUser;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
@@ -37,16 +38,31 @@ public class WinEventHooks {
 			log.info("Starting...");
 			WinUser.WinEventProc callback = new MyWinEventProc();
 
+			// TODO: Need a hook that detects privileged (???) window creation, e.g. Task Manager (ATM it is only detected if switched out then back in)
+
 			SetWinEventHook hookLocationOrNameChange = new SetWinEventHook(
 					SetWinEventHook.EVENT_OBJECT_LOCATIONCHANGE,
 					SetWinEventHook.EVENT_OBJECT_NAMECHANGE,
 					callback
 			);
+
 			SetWinEventHook hookForegroundChange = new SetWinEventHook(
 					SetWinEventHook.EVENT_SYSTEM_FOREGROUND,
 					SetWinEventHook.EVENT_SYSTEM_FOREGROUND,
 					callback
 			);
+
+
+			/*
+			// debug
+			MyWinEventProcDebug callbackDebug = new MyWinEventProcDebug();
+			SetWinEventHook hookAllDebug = new SetWinEventHook(
+					SetWinEventHook.EVENT_MIN,
+					SetWinEventHook.EVENT_SYSTEM_END,
+					callbackDebug
+			);
+			*/
+
 
 			//log.info("SetWinEventHook result =" + winEventHook.getResult().toString());
 
@@ -70,18 +86,8 @@ public class WinEventHooks {
 			User32.INSTANCE.UnhookWinEvent(hookForegroundChange.getResult());
 		}
 
-		private class MyWinEventProc implements WinUser.WinEventProc {
-			/* idObject values */
-			/** The window itself rather than a child object */
-			static final long OBJID_WINDOW = 0x00000000;
-
-			/* WINDOWPLACEMENT flags */
-			static final int SW_SHOWNORMAL = 1;
-			static final int SW_MAXIMIZE = 3;
-
-
-			private final WinUser.WINDOWPLACEMENT WindowPlacementStruct = new WinUser.WINDOWPLACEMENT();
-
+		/*
+		private class MyWinEventProcDebug extends MyWinEventProc {
 			@Override
 			public void callback(WinNT.HANDLE hWinEventHook,
 								 WinDef.DWORD event,
@@ -90,52 +96,101 @@ public class WinEventHooks {
 								 WinDef.LONG idChild,
 								 WinDef.DWORD dwEventThread,
 								 WinDef.DWORD dwmsEventTime) {
-				if ((OBJID_WINDOW == idObject.longValue()) && isWindowInteresting(hwnd)) {
-					//noinspection NumericCastThatLosesPrecision,SwitchStatement
-					switch ((int) event.longValue()) {
-						case SetWinEventHook.EVENT_SYSTEM_FOREGROUND:
-							checkWindowMaximized(hwnd);
-							Environment.getInstance().setLastActiveHwnd(hwnd);
-							break;
-						case SetWinEventHook.EVENT_OBJECT_LOCATIONCHANGE:
-							// window position changed - check if it is maximized or restored
-							checkWindowMaximized(hwnd);
-							break;
-						case SetWinEventHook.EVENT_OBJECT_NAMECHANGE:
-							// window name changed
-							break;
-						default:
-							log.warn("WinEventProc callback somehow got an unknown event: " + Long.toHexString(event.longValue()));
-							break;
+				if ((OBJID_WINDOW == idObject.longValue())) {
+					log.info("New window event from hWnd " + hwnd + ": " + Long.toHexString(event.longValue()) + ", isInteresting = " + isWindowInteresting(hwnd));
+				}
+
+			}
+		}
+		*/
+
+		private class MyWinEventProc implements WinUser.WinEventProc {
+			/* idObject values */
+			/** Is a window itself, not a child object */
+			static final long OBJID_WINDOW = 0x00000000;
+
+			/* WINDOWPLACEMENT flags */
+			//static final int SW_SHOWNORMAL = 1;
+			static final int SW_MAXIMIZE = 3;
+
+			private final WinUser.WINDOWPLACEMENT WindowPlacementStruct = new WinUser.WINDOWPLACEMENT();
+
+			private GetWindowLongStyle windowStyleData;
+			private boolean hasTitleBar = false;
+			private boolean canMaximizeOrRestore = false;
+
+			@Override
+			public void callback(WinNT.HANDLE hWinEventHook,
+								 WinDef.DWORD event,
+								 WinDef.HWND hWnd,
+								 WinDef.LONG idObject,
+								 WinDef.LONG idChild,
+								 WinDef.DWORD dwEventThread,
+								 WinDef.DWORD dwmsEventTime) {
+				if (OBJID_WINDOW == idObject.longValue()) {
+					windowStyleData = new GetWindowLongStyle(hWnd);
+					hasTitleBar = windowStyleData.hasTitleBar();
+					if (hasTitleBar) {
+						//noinspection NumericCastThatLosesPrecision,SwitchStatement
+						switch ((int) event.longValue()) {
+							case SetWinEventHook.EVENT_SYSTEM_FOREGROUND:
+								// new window brought to the front
+								resetWindowResizeButton(hWnd);
+								Environment.getInstance().setLastActiveHwnd(hWnd);
+								refreshSysbtnEnabledState(hWnd, windowStyleData);
+								// TODO: update title label
+								break;
+							case SetWinEventHook.EVENT_OBJECT_LOCATIONCHANGE:
+								// window position changed
+								resetWindowResizeButton(hWnd);
+								break;
+							case SetWinEventHook.EVENT_OBJECT_NAMECHANGE:
+								// window name changed
+								// TODO: update title label
+								break;
+							default:
+								log.warn("WinEventProc callback somehow got an unknown event: " + Long.toHexString(event.longValue()));
+								break;
+						}
 					}
 				}
 			}
 
-			private void checkWindowMaximized(WinDef.HWND hwnd) {
-				if (User32Ex.INSTANCE.GetWindowPlacement(hwnd, WindowPlacementStruct).booleanValue()) {
-					boolean isMaximized = false;
-					/*
-					if (SW_MAXIMIZE == (WindowPlacementStruct.showCmd & SW_MAXIMIZE)) {
-					} else if (SW_SHOWNORMAL == (WindowPlacementStruct.showCmd & SW_SHOWNORMAL)) {
-
-					}
-					*/
-
+			void resetWindowResizeButton(WinDef.HWND hWnd) {
+				if (User32Ex.INSTANCE.GetWindowPlacement(hWnd, WindowPlacementStruct).booleanValue()) { // returns false if it fails
 					TurboBar.getController().updateResizeButton(SW_MAXIMIZE == (WindowPlacementStruct.showCmd & SW_MAXIMIZE));
 				}
 			}
 
-			private boolean isWindowInteresting(WinDef.HWND hwnd) {
-				boolean isInteresting = false;
-				int styleFlags = User32Ex.INSTANCE.GetWindowLongW(hwnd, WinUser.GWL_STYLE);
-				if (WinUser.WS_VISIBLE == (styleFlags & WinUser.WS_VISIBLE)) {
-					// window is visible...
-					if (WinUser.WS_CAPTION == (styleFlags & WinUser.WS_CAPTION)) {
-						// ...and has WS_CAPTION style. We originally checked for WS_SYSMENU style, but some windows don't have this style (e.g. Discord).
-						isInteresting = true;
+			void refreshSysbtnEnabledState(WinDef.HWND hWnd, GetWindowLongStyle windowStyleData) {
+				// always keep close button enabled
+				TurboBar.getController().setSysButtonEnabled(0, true);
+				// determine if the window can be maximized or restored
+				canMaximizeOrRestore = false;
+				if (windowStyleData.canResize() && windowStyleData.hasResizeButton()) {
+					//log.info("Resizable window has maximize sysbutton");
+					canMaximizeOrRestore = true;
+				} else {
+					// this is not necessary (yet)
+					/*
+					// inspect the system menu, if possible
+					WinDef.HMENU hMenu = User32Ex.INSTANCE.GetSystemMenu(hWnd, false);
+					WinUser.MENUITEMINFO mii = new WinUser.MENUITEMINFO(WinUser.MENUITEMINFO.MIIM_STATE);
+					// first check if RESTORE is enabled
+					boolean result = User32Ex.INSTANCE.GetMenuItemInfoW(hMenu, WinUser.SC_RESTORE, false, mii);
+					if (result) {
+						if (WinUser.MENUITEMINFO.MFS_DISABLED == (mii.fState & WinUser.MENUITEMINFO.MFS_DISABLED)) {
+							log.info("Restore is disabled");
+						}
 					}
+					//log.info(Integer.toHexString(mii.fState.intValue()));
+					//log.info("Result = " + result + "; " + Kernel32.INSTANCE.GetLastError());
+					*/
 				}
-				return isInteresting;
+				TurboBar.getController().setSysButtonEnabled(1, canMaximizeOrRestore);
+
+				// determine if the window can be minimized
+				TurboBar.getController().setSysButtonEnabled(2, windowStyleData.hasMinimizeButton());
 			}
 		}
 	}

@@ -1,16 +1,18 @@
 package com.cosmicdan.turboshell.gui;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ReadOnlyIntegerWrapper;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.WritableIntegerValue;
 import lombok.AccessLevel;
+import lombok.Data;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 
+import java.util.Arrays;
+
+@Log4j2
 public class TurboBarModel {
-	@Getter
-	private final IntegerProperty ctrlResizeGraphicIndex = new SimpleIntegerProperty();
+	@Getter	private final IntegerProperty ctrlResizeGraphicIndex = new SimpleIntegerProperty();
+	@Getter	private final BooleanProperty[] ctrlSysbtnEnabled = new SimpleBooleanProperty[3];
 
 	/*
 	private final IntegerProperty x = new SimpleIntegerProperty();
@@ -19,11 +21,18 @@ public class TurboBarModel {
 	*/
 
 	public TurboBarModel() {
+		for (int i = 0; i < ctrlSysbtnEnabled.length; i++) {
+			ctrlSysbtnEnabled[i] = new SimpleBooleanProperty();
+		}
 		//sum.bind(x.add(y));
 	}
 
 	public final void setCtrlResizeGraphicIndex(final int newValue) {
 		this.ctrlResizeGraphicIndex.set(newValue);
+	}
+
+	public final void setCtrlSysbtnEnabled(final int index, final boolean enabled) {
+		this.ctrlSysbtnEnabled[index].set(enabled);
 	}
 
 	public final boolean isCtrlResizeMaximize() {

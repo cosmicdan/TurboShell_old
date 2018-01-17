@@ -2,7 +2,6 @@ package com.cosmicdan.turboshell.winapi;
 
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinNT;
-import com.sun.jna.platform.win32.WinUser;
 import lombok.Getter;
 
 public class SetWinEventHook {
@@ -13,8 +12,14 @@ public class SetWinEventHook {
 	/** An object's Name property has changed */
 	public static final int EVENT_OBJECT_NAMECHANGE = 0x800C;
 
+	/*
+	// debug
+	public static final int EVENT_MIN = 0x00000001;
+	public static final int EVENT_SYSTEM_END = 0x00FF;
+	*/
+
 	/* flags */
-	public static final int WINEVENT_OUTOFCONTEXT = 0x0000;
+	private static final int WINEVENT_OUTOFCONTEXT = 0x0000;
 
 	@Getter
 	private final WinNT.HANDLE result;

@@ -1,11 +1,17 @@
 package com.cosmicdan.turboshell.gui;
 
+import com.cosmicdan.turboshell.gui.animations.KillCountdownProgress;
 import com.cosmicdan.turboshell.gui.controls.TurboBarButton;
+import javafx.animation.PauseTransition;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.scene.Parent;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.util.Duration;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.ArrayList;
@@ -45,6 +51,8 @@ public class TurboBarView {
 	private final TurboBarButton mCtrlSysButtonMinimize = new TurboBarButton("", "TurboBar_sysbtn_minimize.png");
 	private final TurboBarButton mCtrlSysButtonResize = new TurboBarButton("", new String[] {"TurboBar_sysbtn_resize_restore.png", "TurboBar_sysbtn_resize_maximize.png"});
 	private final TurboBarButton mCtrlSysButtonClose = new TurboBarButton("", "TurboBar_sysbtn_close.png");
+
+	private boolean wasCloseHeld = false; // used to prevent a held close event's "click" carrying through to the next window
 
 	public TurboBarView(TurboBarModel model, TurboBarController controller) {
 		mController = controller ;
@@ -115,15 +123,32 @@ public class TurboBarView {
 	}
 
 	private void updateControllerFromListeners() {
+		// close button
+		mCtrlSysButtonClose.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
+			if (wasCloseHeld)
+				wasCloseHeld = false;
+			else
+				mController.eventCloseButtonClick(event);
+			});
+
+		// close button primary-click-and-hold
+		addHoldButtonHandler(MouseButton.PRIMARY, mCtrlSysButtonClose, Duration.seconds(1), event -> {
+			wasCloseHeld = true;
+			mController.eventCloseButtonPrimaryHold();
+		});
+
+		// close button secondary-click-and-hold
+		addHoldButtonHandler(MouseButton.SECONDARY, mCtrlSysButtonClose, Duration.seconds(1), event -> {
+			mController.eventCloseButtonSecondaryHold();
+		});
+
+		// resize button
 		mCtrlSysButtonResize.addEventFilter(MouseEvent.MOUSE_CLICKED, event ->
 				mController.eventResizeButtonClick(event));
 
-
-		/*
-		mCtrlSysButtonResize.setOnAction(event -> {
-			event.getSource()
-		});
-		*/
+		// minimize button
+		mCtrlSysButtonMinimize.addEventFilter(MouseEvent.MOUSE_CLICKED, event ->
+				mController.eventMinimizeButtonClick());
 
 		/*
 		xField.textProperty().addListener((obs, oldText, newText) -> controller.updateX(newText));
@@ -132,8 +157,18 @@ public class TurboBarView {
 	}
 
 	private void observeModelAndUpdateControls() {
+		// resize graphic listener
 		mModel.getCtrlResizeGraphicIndex().addListener((observable, oldIndex, newIndex) ->
 				refreshResizeButton(newIndex, mCtrlSysButtonResize));
+
+		// sysbtn enabled state listeners
+		mModel.getCtrlSysbtnEnabled()[0].addListener((observable, oldValue, newValue) ->
+				refreshSysbtnEnabledState(newValue, mCtrlSysButtonClose));
+		mModel.getCtrlSysbtnEnabled()[1].addListener((observable, oldValue, newValue) ->
+				refreshSysbtnEnabledState(newValue, mCtrlSysButtonResize));
+		mModel.getCtrlSysbtnEnabled()[2].addListener((observable, oldValue, newValue) ->
+				refreshSysbtnEnabledState(newValue, mCtrlSysButtonMinimize));
+
 
 		/*
 		model.xProperty().addListener((obs, oldX, newX) ->
@@ -150,7 +185,42 @@ public class TurboBarView {
 		mCtrlSysButtonResize.setGraphic(mCtrlSysButtonResize.getImage(newIndex.intValue()));
 	}
 
+	private void refreshSysbtnEnabledState(Boolean newValue, TurboBarButton mCtrlSysButton) {
+		mCtrlSysButton.setDisable(!newValue.booleanValue());
+	}
 
+	/**
+	 * Thanks to James_D @ StackOverflow for the basis of this
+	 * https://stackoverflow.com/a/25610190/1767892
+	 */
+	private void addHoldButtonHandler(MouseButton mouseButton, TurboBarButton node, Duration holdTime, EventHandler<MouseEvent> handler) {
+
+		class Wrapper<T> { T content ; }
+		Wrapper<MouseEvent> eventWrapper = new Wrapper<>();
+
+		KillCountdownProgress holdTimer = new KillCountdownProgress(holdTime, mCtrlSysButtonClose);
+		holdTimer.setOnFinished(event -> handler.handle(eventWrapper.content));
+
+		node.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
+			if (mouseButton == event.getButton()) {
+				eventWrapper.content = event ;
+				holdTimer.playFromStart();
+			}
+		});
+		node.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
+			holdTimer.stop();
+		});
+		node.addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, event -> {
+			if (wasCloseHeld)
+				wasCloseHeld = false;
+			holdTimer.stop();
+		});
+	}
+
+
+
+
+ /*
 	private void updateIfNeeded(Number value, TextField field) {
 		String s = value.toString() ;
 		if (! field.getText().equals(s)) {
@@ -158,7 +228,6 @@ public class TurboBarView {
 		}
 	}
 
-/*
 
 	private void configTextFieldForInts(TextField field) {
 		field.setTextFormatter(new TextFormatter<Integer>((Change c) -> {

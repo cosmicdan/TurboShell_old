@@ -1,9 +1,9 @@
 package com.cosmicdan.turboshell;
 
 import com.cosmicdan.turboshell.winapi.SystemParametersInfo;
+import com.cosmicdan.turboshell.winapi.WinUser;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
-import com.sun.jna.platform.win32.WinUser;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2

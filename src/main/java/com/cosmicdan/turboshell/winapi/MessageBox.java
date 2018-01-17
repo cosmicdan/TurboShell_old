@@ -1,7 +1,7 @@
 package com.cosmicdan.turboshell.winapi;
 
-import com.sun.jna.*;
-import com.sun.jna.platform.win32.*;
+import com.sun.jna.WString;
+import com.sun.jna.platform.win32.WinDef;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
