@@ -2,8 +2,6 @@ package com.cosmicdan.turboshell;
 
 import com.cosmicdan.turboshell.gui.TurboBar;
 import com.cosmicdan.turboshell.hooks.WinEventHooks;
-import com.cosmicdan.turboshell.util.SizedStack;
-import com.sun.jna.platform.win32.User32;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
@@ -17,7 +15,7 @@ public class Main {
 		TurboBar turboBar = new TurboBar();
 		sTurboBarThread = new Thread(turboBar);
 		sTurboBarThread.start();
-		WatcherThread watcherThread = new WatcherThread();
+		RuntimeLoop watcherThread = new RuntimeLoop();
 		sWatcherThread = new Thread(watcherThread);
 		
 		WinEventHooks.getInstance().start();

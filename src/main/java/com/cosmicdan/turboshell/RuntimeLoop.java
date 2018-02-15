@@ -3,7 +3,7 @@ package com.cosmicdan.turboshell;
 /**
  * Runtime loop for reacting to situations that can't be reliably hooked
  */
-public class WatcherThread implements Runnable {
+public class RuntimeLoop implements Runnable {
 	@Override
 	public void run() {
 		while (true) {
