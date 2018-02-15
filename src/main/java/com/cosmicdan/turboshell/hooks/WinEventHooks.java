@@ -166,8 +166,8 @@ public class WinEventHooks {
 				if (windowStyleData.canResize() && windowStyleData.hasResizeButton()) {
 					//log.info("Resizable window has maximize sysbutton");
 					canMaximizeOrRestore = true;
-				} else {
-					// this is not necessary (yet)
+				//} else {
+					// this is not necessary (yet? kept just in case)
 					/*
 					// inspect the system menu, if possible
 					WinDef.HMENU hMenu = User32Ex.INSTANCE.GetSystemMenu(hWnd, false);
@@ -198,7 +198,8 @@ public class WinEventHooks {
 				if (length > 0)
 					windowTitle = new String(title);
 				// TODO: else set process name to title
-				log.info("New title: " + windowTitle);
+				log.info("Activated new Window, title: " + windowTitle);
+				// TODO: Actually save the title somewhere for display in the GUI
 			}
 		}
 	}

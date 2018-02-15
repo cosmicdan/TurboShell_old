@@ -1,16 +1,11 @@
 package com.cosmicdan.turboshell.gui;
 
 import javafx.beans.property.*;
-import javafx.beans.value.WritableIntegerValue;
-import lombok.AccessLevel;
-import lombok.Data;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
-import java.util.Arrays;
-
 @Log4j2
-public class TurboBarModel {
+class TurboBarModel {
 	@Getter	private final IntegerProperty ctrlResizeGraphicIndex = new SimpleIntegerProperty();
 	@Getter	private final BooleanProperty[] ctrlSysbtnEnabled = new SimpleBooleanProperty[3];
 

@@ -16,20 +16,19 @@ public class KillCountdownProgress extends Transition {
 	private final String mColorHex;
 	private final boolean mDoReverse;
 
-	public final void setDuration(Duration value) {
+	private void setDuration(Duration value) {
 		if ((duration != null) || (!DEFAULT_DURATION.equals(value))) {
 			durationProperty().set(value);
 		}
 	}
 
-	public final Duration getDuration() {
+	private Duration getDuration() {
 		return (duration == null)? DEFAULT_DURATION : duration.get();
 	}
 
-	public final ObjectProperty<Duration> durationProperty() {
+	private ObjectProperty<Duration> durationProperty() {
 		if (duration == null) {
 			duration = new ObjectPropertyBase<Duration>(DEFAULT_DURATION) {
-
 				@Override
 				public void invalidated() {
 					try {

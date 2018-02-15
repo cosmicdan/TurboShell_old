@@ -1,9 +1,14 @@
 package com.cosmicdan.turboshell;
 
+import lombok.Setter;
+
 /**
  * Runtime loop for reacting to situations that can't be reliably hooked
  */
-public class RuntimeLoop implements Runnable {
+class RuntimeLoop implements Runnable {
+	@Setter
+	private volatile boolean shouldStop = false;
+
 	@Override
 	public void run() {
 		while (true) {
@@ -14,6 +19,9 @@ public class RuntimeLoop implements Runnable {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+
+			if (shouldStop)
+				break;
 		}
 	}
 }

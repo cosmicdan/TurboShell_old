@@ -6,18 +6,15 @@ import com.cosmicdan.turboshell.winapi.SystemParametersInfo;
 import com.cosmicdan.turboshell.winapi.User32Ex;
 import com.cosmicdan.turboshell.winapi.WinUser;
 import com.sun.istack.internal.Nullable;
-import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.User32;
-import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinDef;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class Environment {
 	private final Object mHWndActiveLock = new Object();
-	private final Object mHWndDesktopLock = new Object();
 
-	private SizedStack<WinDef.HWND> mHWndActiveStack = new SizedStack<>(8); //TODO: Offload stack size to config
+	private final SizedStack<WinDef.HWND> mHWndActiveStack = new SizedStack<>(8); //TODO: Offload stack size to config
 
 	/********** "Initialization-on-demand holder" singleton pattern **********/
 	public static Environment getInstance() { return LazyHolder.INSTANCE; }
@@ -96,7 +93,7 @@ public class Environment {
 		return mainMonitorInfo.rcWork;
 	}
 
-	private boolean setWorkArea(int left, int top, int right, int bottom) {
+	private void setWorkArea(int left, int top, int right, int bottom) {
 		WinDef.RECT rect = new WinDef.RECT();
 		rect.left = left;
 		rect.top = top;
@@ -118,6 +115,5 @@ public class Environment {
 					10000,
 					success);
 		}
-		return result;
 	}
 }

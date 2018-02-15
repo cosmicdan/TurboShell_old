@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Log4j2
-public class TurboBarView {
+class TurboBarView {
 	private HBox mView;
 	private final Collection<Region> turboBarControls = new ArrayList<>(20);
 
@@ -46,7 +46,7 @@ public class TurboBarView {
 	private final TurboBarButton mCtrlSysButtonResize = new TurboBarButton("", new String[] {"TurboBar_sysbtn_resize_restore.png", "TurboBar_sysbtn_resize_maximize.png"});
 	private final TurboBarButton mCtrlSysButtonClose = new TurboBarButton("", "TurboBar_sysbtn_close.png");
 
-	private boolean wasCloseHeld = false; // used to prevent a held close event's "click" carrying through to the next window
+	private boolean wasCloseHeld = false; // used to prevent a hold-close event's left-click being carrying through to the next window
 
 	public TurboBarView(TurboBarModel model, TurboBarController controller) {
 		mController = controller ;
@@ -128,21 +128,17 @@ public class TurboBarView {
 		// close button primary-click-and-hold
 		addHoldButtonHandler(MouseButton.PRIMARY, mCtrlSysButtonClose, Duration.seconds(1), event -> {
 			wasCloseHeld = true;
-			mController.eventCloseButtonPrimaryHold();
+			mController.eventCloseButtonHeld(event);
 		});
 
 		// close button secondary-click-and-hold
-		addHoldButtonHandler(MouseButton.SECONDARY, mCtrlSysButtonClose, Duration.seconds(1), event -> {
-			mController.eventCloseButtonSecondaryHold();
-		});
+		addHoldButtonHandler(MouseButton.SECONDARY, mCtrlSysButtonClose, Duration.seconds(1), mController::eventCloseButtonHeld);
 
 		// resize button
-		mCtrlSysButtonResize.addEventFilter(MouseEvent.MOUSE_CLICKED, event ->
-				mController.eventResizeButtonClick(event));
+		mCtrlSysButtonResize.addEventFilter(MouseEvent.MOUSE_CLICKED, mController::eventResizeButtonClick);
 
 		// minimize button
-		mCtrlSysButtonMinimize.addEventFilter(MouseEvent.MOUSE_CLICKED, event ->
-				mController.eventMinimizeButtonClick());
+		mCtrlSysButtonMinimize.addEventFilter(MouseEvent.MOUSE_CLICKED, mController::eventMinimizeButtonClick);
 
 		/*
 		xField.textProperty().addListener((obs, oldText, newText) -> controller.updateX(newText));
@@ -180,7 +176,7 @@ public class TurboBarView {
 	}
 
 	private void refreshSysbtnEnabledState(Boolean newValue, TurboBarButton mCtrlSysButton) {
-		mCtrlSysButton.setDisable(!newValue.booleanValue());
+		mCtrlSysButton.setDisable(!newValue);
 	}
 
 	/**
@@ -204,9 +200,7 @@ public class TurboBarView {
 				holdTimer.playFromStart();
 			}
 		});
-		node.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
-			holdTimer.stop();
-		});
+		node.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> holdTimer.stop());
 		node.addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, event -> {
 			if (wasCloseHeld)
 				wasCloseHeld = false;

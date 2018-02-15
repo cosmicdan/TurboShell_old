@@ -7,7 +7,7 @@ import java.util.Stack;
  * https://stackoverflow.com/a/16206356/1767892
  */
 public class SizedStack<T> extends Stack<T> {
-	private int maxSize;
+	private final int maxSize;
 
 	public SizedStack(int size) {
 		super();

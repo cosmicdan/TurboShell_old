@@ -6,17 +6,16 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class Main {
-	private static Thread sTurboBarThread;
-	private static Thread sWatcherThread;
 
 	public static void main(String[] args) {
 		log.info("Startup...");
 
 		TurboBar turboBar = new TurboBar();
-		sTurboBarThread = new Thread(turboBar);
+		Thread sTurboBarThread = new Thread(turboBar);
 		sTurboBarThread.start();
-		RuntimeLoop watcherThread = new RuntimeLoop();
-		sWatcherThread = new Thread(watcherThread);
+		RuntimeLoop runtimeLoop = new RuntimeLoop();
+		Thread sWatcherThread = new Thread(runtimeLoop);
+		sWatcherThread.start();
 		
 		WinEventHooks.getInstance().start();
 	}

@@ -42,24 +42,21 @@ public class TurboBarController {
 		}
 	}
 
-	public void eventCloseButtonPrimaryHold() {
+	public void eventCloseButtonHeld(MouseEvent event) {
 		WinDef.HWND lastActive = Environment.getInstance().getLastActiveHwnd();
 		if (null != lastActive) {
-			// TODO: Update if/when native binding PostMessage is fixed
-			User32.INSTANCE.PostMessage(lastActive, WinUser.WM_QUIT, null, null);
-			log.info("Sent WM_QUIT message to hWnd " + lastActive);
-		}
-	}
-
-	public void eventCloseButtonSecondaryHold() {
-		WinDef.HWND lastActive = Environment.getInstance().getLastActiveHwnd();
-		if (null != lastActive) {
-			final IntByReference pid = new IntByReference();
-			User32.INSTANCE.GetWindowThreadProcessId(lastActive, pid);
-			final WinNT.HANDLE hProcess = Kernel32.INSTANCE.OpenProcess(Kernel32.PROCESS_TERMINATE, false, pid.getValue());
-			final boolean result = Kernel32.INSTANCE.TerminateProcess(hProcess, 0);
-			log.info("Called TerminateProcess on hWnd " + lastActive +
-					"; result = " + result + " (GetLastError = " + Kernel32.INSTANCE.GetLastError() + ")");
+			if (isPrimaryButton(event)) { // regular force-quit
+				// TODO: Update if/when native binding PostMessage is fixed
+				User32.INSTANCE.PostMessage(lastActive, WinUser.WM_QUIT, null, null);
+				log.info("Sent WM_QUIT message to hWnd " + lastActive);
+			} else { // force kill
+				final IntByReference pid = new IntByReference();
+				User32.INSTANCE.GetWindowThreadProcessId(lastActive, pid);
+				final WinNT.HANDLE hProcess = Kernel32.INSTANCE.OpenProcess(Kernel32.PROCESS_TERMINATE, false, pid.getValue());
+				final boolean result = Kernel32.INSTANCE.TerminateProcess(hProcess, 0);
+				log.info("Called TerminateProcess on hWnd " + lastActive +
+						"; result = " + result + " (GetLastError = " + Kernel32.INSTANCE.GetLastError() + ")");
+			}
 		}
 	}
 
@@ -76,10 +73,13 @@ public class TurboBarController {
 		}
 	}
 
-	public void eventMinimizeButtonClick() {
-		WinDef.HWND lastActive = Environment.getInstance().getLastActiveHwnd();
-		if (null != lastActive)
-			User32Ex.INSTANCE.ShowWindowAsync(lastActive, WinUser.SW_MINIMIZE);
+	public void eventMinimizeButtonClick(MouseEvent event) {
+		if (isPrimaryButton(event)) {
+			WinDef.HWND lastActive = Environment.getInstance().getLastActiveHwnd();
+			if (null != lastActive) {
+				User32Ex.INSTANCE.ShowWindowAsync(lastActive, WinUser.SW_MINIMIZE);
+			}
+		}
 	}
 
 	private boolean isPrimaryButton(MouseEvent event) {

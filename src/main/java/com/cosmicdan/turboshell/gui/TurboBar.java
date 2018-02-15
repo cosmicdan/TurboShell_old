@@ -13,8 +13,8 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class TurboBar extends AbstractRunnableGui {
-	public static final int TURBOBAR_HEIGHT = 23;
-	public static final String WINDOW_NAME = "TurboShell's TurboBar";
+	private static final int TURBOBAR_HEIGHT = 23;
+	private static final String WINDOW_NAME = "TurboShell's TurboBar";
 	private static final WinDef.HWND HWND_TOPMOST = new WinDef.HWND(Pointer.createConstant(-1));
 	private static final int uFlagsVisible = WinUser.SWP_NOMOVE | WinUser.SWP_NOSIZE | WinUser.SWP_NOACTIVATE | WinUser.SWP_SHOWWINDOW;
 	private static final int uFlagsHidden = WinUser.SWP_NOMOVE | WinUser.SWP_NOSIZE | WinUser.SWP_NOACTIVATE | WinUser.SWP_HIDEWINDOW ;
@@ -42,9 +42,10 @@ public class TurboBar extends AbstractRunnableGui {
 		isVisible = visible;
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public static class App extends Application {
 		@Override
-		public void start(Stage primaryStage) throws Exception {
+		public void start(Stage primaryStage) {
 			log.info("TurboBar GUI starting...");
 
 			TurboBarModel model = new TurboBarModel();
@@ -78,7 +79,7 @@ public class TurboBar extends AbstractRunnableGui {
 		}
 
 		@Override
-		public void stop() throws Exception {
+		public void stop() {
 			log.info("TurboBar GUI stopping...");
 			// TODO: Check if 'Restore workarea on quit' option is disabled
 			Environment.getInstance().adjustWorkArea(0);

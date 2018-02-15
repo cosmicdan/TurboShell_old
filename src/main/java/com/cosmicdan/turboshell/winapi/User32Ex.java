@@ -3,20 +3,16 @@ package com.cosmicdan.turboshell.winapi;
 import com.sun.jna.Native;
 import com.sun.jna.Structure;
 import com.sun.jna.WString;
-import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinNT;
 import lombok.extern.log4j.Log4j2;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Contains User32 methods as a direct mapping instead of default interface mapping (for performance
  * reasons). For TurboShell, many natives are package private because they're wrapped by other classes.
  */
 @Log4j2
-@SuppressWarnings({"MethodParameterNamingConvention", "NativeMethodNamingConvention", "QuestionableName", "NativeMethod"})
+@SuppressWarnings({"MethodParameterNamingConvention", "NativeMethodNamingConvention", "QuestionableName", "NativeMethod", "UnusedReturnValue"})
 public class User32Ex {
 	public static final User32Ex INSTANCE;
 

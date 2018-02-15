@@ -19,8 +19,9 @@ public interface WinUser extends com.sun.jna.platform.win32.WinUser {
 		/** fState values **/
 		public static final int MFS_DISABLED = 0x3;
 
-		public int cbSize = size();
-		public int fMask;
+		public final int cbSize = size();
+		final int fMask;
+
 		public int fType;
 		public int fState;
 		public int wID;
@@ -37,7 +38,7 @@ public interface WinUser extends com.sun.jna.platform.win32.WinUser {
 		}
 
 		@Override
-		protected List getFieldOrder() {
+		protected List<String> getFieldOrder() {
 			return Arrays.asList("cbSize", "fMask", "fType",
 					"fState", "wID", "hSubMenu", "hbmpChecked",
 					"hbmpUnchecked", "dwItemData", "dwTypeData", "cch",

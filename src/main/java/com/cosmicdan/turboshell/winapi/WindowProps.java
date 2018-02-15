@@ -8,7 +8,7 @@ import lombok.extern.log4j.Log4j2;
  */
 @Log4j2
 public class WindowProps {
-	public final WinDef.HWND hWnd;
+	private final WinDef.HWND hWnd;
 	private final int styleFlags;
 	private final int styleExFlags;
 
