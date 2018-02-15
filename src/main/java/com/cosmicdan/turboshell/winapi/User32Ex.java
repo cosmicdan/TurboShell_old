@@ -28,7 +28,7 @@ public class User32Ex {
 	/** Sets the show state of a window without waiting for the operation to complete */
 	public native boolean ShowWindowAsync(WinDef.HWND hWnd, int nCmdShow);
 	/** Places (posts) a message in the message queue without waiting for the thread to process the message */
-	// CRASHES. Disabled for now.
+	// CRASHES. Disabled for now. This has ben fixed in JNA master and should be included in the next release (after 4.5.1)
 	//public native void PostMessageW(WinDef.HWND hWnd, int msg, WinDef.WPARAM wParam, WinDef.LPARAM lParam);
 	public native WinDef.HMENU GetSystemMenu(WinDef.HWND hWnd, boolean bRevert);
 	public native int GetMenuState(WinDef.HMENU hMenu, int uId, int uFlags);
@@ -40,6 +40,7 @@ public class User32Ex {
 	public native boolean IsWindow(WinDef.HWND hWnd);
 	public native WinDef.HWND GetAncestor(WinDef.HWND hwnd, int gaFlags);
 	public native WinDef.HWND GetWindow(WinDef.HWND hWnd, int uCmd);
+	public native boolean IsWindowVisible(WinDef.HWND hWnd);
 
 	/* wrapped natives */
 	native int MessageBoxW(WinDef.HWND hWnd, WString text, WString lpCaption, int uType);
