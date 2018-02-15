@@ -9,13 +9,13 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class WindowProps {
 	private final WinDef.HWND hWnd;
-	private final int styleFlags;
-	private final int styleExFlags;
+	private final long styleFlags;
+	private final long styleExFlags;
 
 	public WindowProps(WinDef.HWND hWnd) {
 		this.hWnd = hWnd;
-		styleFlags = User32Ex.INSTANCE.GetWindowLongW(hWnd, WinUser.GWL_STYLE);
-		styleExFlags = User32Ex.INSTANCE.GetWindowLongW(hWnd, WinUser.GWL_EXSTYLE);
+		styleFlags = User32Ex.INSTANCE.GetWindowLongPtrW(hWnd, WinUser.GWL_STYLE).longValue();
+		styleExFlags = User32Ex.INSTANCE.GetWindowLongPtrW(hWnd, WinUser.GWL_EXSTYLE).longValue();
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package com.cosmicdan.turboshell.gui;
 
 import com.cosmicdan.turboshell.Environment;
+import com.cosmicdan.turboshell.winapi.User32Ex;
 import com.cosmicdan.turboshell.winapi.WinUser;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.User32;
@@ -71,10 +72,7 @@ public class TurboBar extends AbstractRunnableGui {
 			hWnd = User32.INSTANCE.FindWindow(null, WINDOW_NAME);
 			//int WS_EX_TOOLWINDOW = 0x00000080; // redundant?
 			int WS_EX_NOACTIVATE = 0x08000000;
-
-
-
-			User32.INSTANCE.SetWindowLong(hWnd, WinUser.GWL_EXSTYLE, WS_EX_NOACTIVATE);
+			User32.INSTANCE.SetWindowLongPtr(hWnd, WinUser.GWL_EXSTYLE, Pointer.createConstant(WS_EX_NOACTIVATE));
 			setVisible(true);
 		}
 

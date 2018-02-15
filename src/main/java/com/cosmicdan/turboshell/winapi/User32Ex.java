@@ -3,6 +3,7 @@ package com.cosmicdan.turboshell.winapi;
 import com.sun.jna.Native;
 import com.sun.jna.Structure;
 import com.sun.jna.WString;
+import com.sun.jna.platform.win32.BaseTSD;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinNT;
 import lombok.extern.log4j.Log4j2;
@@ -42,7 +43,7 @@ public class User32Ex {
 	native int MessageBoxW(WinDef.HWND hWnd, WString text, WString lpCaption, int uType);
 	native boolean SystemParametersInfoW(int uiAction, int uiParam, Structure pvParam, int fWinIni);
 	native WinNT.HANDLE SetWinEventHook(int eventMin, int eventMax, WinDef.HMODULE hmodWinEventProc, WinUser.WinEventProc winEventProc, int processID, int threadID, int flags);
-	native int GetWindowLongW(WinDef.HWND hWnd, int nIndex);
+	native BaseTSD.LONG_PTR GetWindowLongPtrW(WinDef.HWND hWnd, int nIndex);
 
 	static {
 		INSTANCE = new User32Ex();
