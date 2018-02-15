@@ -100,11 +100,10 @@ public class Environment {
 		rect.right = right;
 		rect.bottom = bottom;
 		boolean result = new SystemParametersInfo(SystemParametersInfo.SPI_SETWORKAREA, 0, rect, 0x0).isSuccess();
-		//return new SystemParametersInfo(SystemParametersInfo.SPI_SETWORKAREA, 0, rect, 0).isSuccess();
 		if (result) {
 			// broadcast system-wide so windows reposition themselves
-			int WM_SETTINGCHANGE = 0x1a;
-			long wParam_SPI_SETNONCLIENTMETRICS = 0x2a;
+			final int WM_SETTINGCHANGE = 0x1a;
+			final long wParam_SPI_SETNONCLIENTMETRICS = 0x2a;
 			final WinDef.DWORDByReference success = new WinDef.DWORDByReference();
 			User32.INSTANCE.SendMessageTimeout(
 					WinUser.HWND_BROADCAST,

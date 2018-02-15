@@ -65,14 +65,15 @@ public class TurboBar extends AbstractRunnableGui {
 			// move the turbobar to the top edge
 			primaryStage.setX(posAndWidth[0]);
 			primaryStage.setY(0);
+			primaryStage.setAlwaysOnTop(true);
 
 			primaryStage.show();
 
-			// set extended style *after* the GUI is shown (such workarounds are to be expected when dealing with java(fx) abstraction)
+			// We need to set extended style *after* the GUI is shown (Not unusual since java(fx) usually abstracts this all away)
 			hWnd = User32.INSTANCE.FindWindow(null, WINDOW_NAME);
-			//int WS_EX_TOOLWINDOW = 0x00000080; // redundant?
+			int WS_EX_TOOLWINDOW = 0x00000080; // redundant?
 			int WS_EX_NOACTIVATE = 0x08000000;
-			User32.INSTANCE.SetWindowLongPtr(hWnd, WinUser.GWL_EXSTYLE, Pointer.createConstant(WS_EX_NOACTIVATE));
+			User32.INSTANCE.SetWindowLongPtr(hWnd, WinUser.GWL_EXSTYLE, Pointer.createConstant(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE));
 			setVisible(true);
 		}
 
