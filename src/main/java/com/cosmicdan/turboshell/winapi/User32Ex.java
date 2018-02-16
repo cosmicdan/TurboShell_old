@@ -1,9 +1,8 @@
 package com.cosmicdan.turboshell.winapi;
 
-import com.sun.jna.Native;
-import com.sun.jna.Structure;
-import com.sun.jna.WString;
+import com.sun.jna.*;
 import com.sun.jna.platform.win32.BaseTSD;
+import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinNT;
 import lombok.extern.log4j.Log4j2;
@@ -17,9 +16,13 @@ import lombok.extern.log4j.Log4j2;
 public class User32Ex {
 	public static final User32Ex INSTANCE;
 
+	// TODO: Javadoc (just link to originals like I have already done for some)
 	/* simple natives without wrappers */
+
+	/** See {@link User32#GetMessage} */
 	public native int GetMessageW(WinUser.MSG lpMsg, WinDef.HWND hWnd, int wMsgFilterMin, int wMsgFilterMax);
 	public native WinDef.BOOL GetWindowPlacement(WinDef.HWND hwnd, WinUser.WINDOWPLACEMENT lpwndpl);
+	/** See {@link User32#TranslateMessage} */
 	public native boolean TranslateMessage(WinUser.MSG lpMsg);
 	public native WinDef.LRESULT DispatchMessageW(WinUser.MSG lpMsg);
 	/** Sets the show state of a window without waiting for the operation to complete */
@@ -39,18 +42,21 @@ public class User32Ex {
 	public native WinDef.HWND GetWindow(WinDef.HWND hWnd, int uCmd);
 	public native boolean IsWindowVisible(WinDef.HWND hWnd);
 
+	/** See {@link User32#RegisterClassEx} */
+	public native WinDef.ATOM RegisterClassExW(WinUser.WNDCLASSEX lpwcx) throws LastErrorException;
+
+	public native WinDef.LRESULT CallWindowProcW(Pointer proc, WinDef.HWND hWnd, int uMsg, WinDef.WPARAM uParam, WinDef.LPARAM lParam);
+
 	/* wrapped natives */
-	native int MessageBoxW(WinDef.HWND hWnd, WString text, WString lpCaption, int uType);
 	native boolean SystemParametersInfoW(int uiAction, int uiParam, Structure pvParam, int fWinIni);
 	native WinNT.HANDLE SetWinEventHook(int eventMin, int eventMax, WinDef.HMODULE hmodWinEventProc, WinUser.WinEventProc winEventProc, int processID, int threadID, int flags);
 	native BaseTSD.LONG_PTR GetWindowLongPtrW(WinDef.HWND hWnd, int nIndex);
+	public native BaseTSD.LONG_PTR SetWindowLongPtrW(WinDef.HWND hWnd, int nIndex, Callback wndProc) throws LastErrorException;
 
 	static {
 		INSTANCE = new User32Ex();
 		Native.register("user32");
 	}
-
-
 
 
 }

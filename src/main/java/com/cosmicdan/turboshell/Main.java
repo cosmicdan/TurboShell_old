@@ -10,13 +10,19 @@ public class Main {
 	public static void main(String[] args) {
 		log.info("Startup...");
 
-		TurboBar turboBar = new TurboBar();
-		Thread sTurboBarThread = new Thread(turboBar);
-		sTurboBarThread.start();
-		RuntimeLoop runtimeLoop = new RuntimeLoop();
-		Thread sWatcherThread = new Thread(runtimeLoop);
-		sWatcherThread.start();
+		final TurboBar turboBar = new TurboBar();
+		final Thread turboBarThread = new Thread(turboBar);
+		turboBarThread.start();
+		final RuntimeLoop runtimeLoop = new RuntimeLoop();
+		final Thread runtimeLoopThread = new Thread(runtimeLoop);
+		runtimeLoopThread.start();
+
 		
 		WinEventHooks.getInstance().start();
+
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			log.info("Shutting down TurboShell...");
+			// nothing to do here (yet)
+		}));
 	}
 }

@@ -13,19 +13,18 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class WinEventHooks {
-	// Following "Initialization-on-demand holder idiom"
-	private final WinEventHookThread THREAD;
-
-	private WinEventHooks() {
-		THREAD = new WinEventHookThread();
+	/********** "Initialization-on-demand holder" singleton pattern **********/
+	public static WinEventHooks getInstance() {
+		return LazyHolder.INSTANCE;
 	}
-
 	private static class LazyHolder {
 		static final WinEventHooks INSTANCE = new WinEventHooks();
 	}
+	/*************************************************************************/
 
-	public static WinEventHooks getInstance() {
-		return LazyHolder.INSTANCE;
+	private final WinEventHookThread THREAD;
+	private WinEventHooks() {
+		THREAD = new WinEventHookThread();
 	}
 
 	public void start() {
@@ -36,6 +35,7 @@ public class WinEventHooks {
 		@Override
 		public void run() {
 			log.info("Starting...");
+
 			WinUser.WinEventProc callback = new MyWinEventProc();
 
 			// TODO: Need a hook that detects privileged (???) window creation, e.g. Task Manager (ATM it is only detected if switched out then back in)
@@ -147,7 +147,6 @@ public class WinEventHooks {
 								break;
 						}
 					}
-					Environment.getInstance().doFullscreenCheck();
 				}
 			}
 
@@ -198,7 +197,7 @@ public class WinEventHooks {
 				if (length > 0)
 					windowTitle = new String(title);
 				// TODO: else set process name to title
-				log.info("Activated new Window, title: " + windowTitle);
+				//log.info("Title refresh to '" + windowTitle + "'");
 				// TODO: Actually save the title somewhere for display in the GUI
 			}
 		}

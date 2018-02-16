@@ -4,7 +4,7 @@ import com.sun.jna.platform.win32.WinDef;
 import lombok.extern.log4j.Log4j2;
 
 /**
- * A wrapper around GetWindowLong for GWL_STYLE/GWL_EXSTYLE and some other window related properties
+ * A wrapper around GetWindowLongPtr for GWL_STYLE/GWL_EXSTYLE and some other window related properties
  */
 @Log4j2
 public class WindowProps {
